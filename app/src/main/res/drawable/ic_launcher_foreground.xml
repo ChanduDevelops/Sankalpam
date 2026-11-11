@@ -1,0 +1,54 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Scaled down to 0.58 for a slightly smaller footprint -->
+    <group
+        android:pivotX="12"
+        android:pivotY="12"
+        android:scaleX="0.58"
+        android:scaleY="0.58">
+
+        <!-- Left/bottom arc, ending at the arrow tip (top-left) -->
+        <path
+            android:pathData="M5.6,5.6 A9,9 0 0 0 11,20.9"
+            android:strokeColor="#F26E02"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+
+        <!-- Arrowhead -->
+        <path
+            android:pathData="M2.4,5.6 L5.6,5.6 L5.6,8.8"
+            android:strokeColor="#F26E02"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+
+        <!-- Top-right arc -->
+        <path
+            android:pathData="M12,3 A9,9 0 0 1 20.7,9.7"
+            android:strokeColor="#F26E02"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+
+        <!-- Clock hands -->
+        <path
+            android:pathData="M12,7 L12,12 L8.5,12"
+            android:strokeColor="#F26E02"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+
+        <!-- Checkmark (slightly larger) -->
+        <path
+            android:pathData="M13.9,17 L16.3,19.4 L21.1,14"
+            android:strokeColor="#F26E02"
+            android:strokeWidth="1.8"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
+</vector>

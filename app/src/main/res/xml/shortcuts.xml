@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <capability android:name="actions.intent.SET_TIMER">
+        <intent
+            android:action="android.intent.action.SET_TIMER"
+            android:targetPackage="com.personal.sankalpam"
+            android:targetClass="com.personal.sankalpam.MainActivity" />
+    </capability>
+
+    <capability android:name="actions.intent.SHOW_TIMERS">
+        <intent
+            android:action="android.intent.action.SHOW_TIMERS"
+            android:targetPackage="com.personal.sankalpam"
+            android:targetClass="com.personal.sankalpam.MainActivity" />
+    </capability>
+
+    <capability android:name="actions.intent.CREATE_NOTE">
+        <intent
+            android:action="android.intent.action.CREATE_NOTE"
+            android:targetPackage="com.personal.sankalpam"
+            android:targetClass="com.personal.sankalpam.MainActivity" />
+    </capability>
+
+    <capability android:name="actions.intent.CREATE_TODO_ITEM">
+        <intent
+            android:action="android.intent.action.CREATE_NOTE"
+            android:targetPackage="com.personal.sankalpam"
+            android:targetClass="com.personal.sankalpam.MainActivity" />
+    </capability>
+</shortcuts>
