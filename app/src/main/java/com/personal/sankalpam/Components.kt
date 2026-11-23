@@ -4,10 +4,13 @@ package com.personal.sankalpam
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +40,6 @@ import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Replay
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -102,7 +104,7 @@ import java.util.Locale
 
 private val STAMP = DateTimeFormatter.ofPattern("EEE d MMM, h:mm a")
 private val DAY = DateTimeFormatter.ofPattern("MMM d")
-private val REMINDER_DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, MMM d, yyyy")
+private val REMINDER_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM d, yyyy")
 private val REMINDER_TIME_FORMAT = DateTimeFormatter.ofPattern("h:mm a")
 
 fun LocalTime.pretty(): String = format(DateTimeFormatter.ofPattern("h:mm a"))
@@ -875,10 +877,19 @@ fun EditorSheet(
                         }
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FilledTonalButton(onClick = { showDatePicker = true }) {
+                            FilledTonalButton(
+                                onClick = { showDatePicker = true },
+                                modifier = Modifier.height(40.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                            ) {
                                 Icon(Icons.Outlined.Alarm, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(6.dp))
-                                Text(reminderLdt.format(STAMP))
+                                Text(
+                                    text = reminderLdt.format(STAMP),
+                                    maxLines = 1,
+                                    softWrap = false,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
                             Spacer(Modifier.width(8.dp))
                             TextButton(onClick = { reminderTime = null }) {
@@ -1056,50 +1067,72 @@ fun GeneralReminderEditorSheet(
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         FilledTonalButton(
                             onClick = { showDatePicker = true },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                         ) {
                             Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text(ldt.format(REMINDER_DATE_FORMAT))
+                            Text(
+                                text = ldt.format(REMINDER_DATE_FORMAT),
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                         FilledTonalButton(
                             onClick = { showTimePicker = true },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
                         ) {
                             Icon(Icons.Outlined.Schedule, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(6.dp))
-                            Text(ldt.format(REMINDER_TIME_FORMAT))
+                            Text(
+                                text = ldt.format(REMINDER_TIME_FORMAT),
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                     }
 
                     // Quick presets
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        AssistChip(
+                        QuickPresetChip(
+                            label = "In 1 hour",
                             onClick = {
                                 val target = LocalDateTime.now().plusHours(1)
                                 reminderTime = target.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                             },
-                            label = { Text("In 1 hour") },
                         )
-                        AssistChip(
+                        QuickPresetChip(
+                            label = "Today 6 PM",
                             onClick = {
                                 val target = LocalDate.now().atTime(18, 0)
                                 reminderTime = target.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                             },
-                            label = { Text("Today 6 PM") },
                         )
-                        AssistChip(
+                        QuickPresetChip(
+                            label = "Tomorrow 9 AM",
                             onClick = {
                                 val target = LocalDate.now().plusDays(1).atTime(9, 0)
                                 reminderTime = target.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
                             },
-                            label = { Text("Tomorrow 9 AM") },
                         )
                     }
                 }
@@ -1186,6 +1219,34 @@ fun GeneralReminderEditorSheet(
     }
 }
 
+@Composable
+private fun QuickPresetChip(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onClick,
+        modifier = modifier.height(34.dp),
+        shape = RoundedCornerShape(8.dp),
+        color = Color.Transparent,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                softWrap = false,
+            )
+        }
+    }
+}
+
 /**
  * Add Timer Sheet:
  * 1. hrs, mns, secs
@@ -1256,24 +1317,27 @@ fun AddTimerSheet(
 
             // Quick preset chips
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                AssistChip(
+                QuickPresetChip(
+                    label = "1 min",
                     onClick = { hoursText = "0"; minutesText = "1"; secondsText = "0" },
-                    label = { Text("1 min") },
                 )
-                AssistChip(
+                QuickPresetChip(
+                    label = "5 mins",
                     onClick = { hoursText = "0"; minutesText = "5"; secondsText = "0" },
-                    label = { Text("5 mins") },
                 )
-                AssistChip(
+                QuickPresetChip(
+                    label = "10 mins",
                     onClick = { hoursText = "0"; minutesText = "10"; secondsText = "0" },
-                    label = { Text("10 mins") },
                 )
-                AssistChip(
+                QuickPresetChip(
+                    label = "25 mins",
                     onClick = { hoursText = "0"; minutesText = "25"; secondsText = "0" },
-                    label = { Text("25 mins") },
                 )
             }
 

@@ -62,13 +62,13 @@ class TimerManager private constructor(private val appContext: Context) {
     }
 
     /**
-     * Deletes completed timers older than 12 hours, unless pinned.
+     * Deletes finished or dismissed timers older than 24 hours, unless pinned.
      */
     fun cleanupExpiredCompletedTimers() {
         val now = System.currentTimeMillis()
-        val twelveHours = 12 * 60 * 60 * 1000L
+        val twentyFourHours = 24 * 60 * 60 * 1000L
         val filtered = _timers.value.filterNot { timer ->
-            timer.isFinished && !timer.isPinned && timer.finishedAt != null && (now - timer.finishedAt >= twelveHours)
+            !timer.isRunning && !timer.isPinned && timer.finishedAt != null && (now - timer.finishedAt >= twentyFourHours)
         }
         if (filtered.size != _timers.value.size) {
             _timers.value = filtered
@@ -93,11 +93,13 @@ class TimerManager private constructor(private val appContext: Context) {
                 tickCount++
                 val now = System.currentTimeMillis()
                 var updated = false
+                var anyFinishedNow = false
                 val next = _timers.value.map { timer ->
                     if (timer.isRunning) {
                         val remaining = maxOf(0L, (timer.endTimestamp - now + 999) / 1000)
                         if (remaining == 0L && !timer.isFinished) {
                             updated = true
+                            anyFinishedNow = true
                             TimerSoundManager.startAlarm(appContext, timer.label)
                             timer.copy(
                                 remainingSeconds = 0,
@@ -120,7 +122,9 @@ class TimerManager private constructor(private val appContext: Context) {
                 if (updated) {
                     _timers.value = next
                     commit(next)
-                    TimerNotificationManager.updateRunningNotification(appContext, next)
+                    if (anyFinishedNow) {
+                        TimerNotificationManager.updateRunningNotification(appContext, next)
+                    }
                     if (!next.any { it.isRunning }) {
                         tickerJob?.cancel()
                         tickerJob = null

@@ -7,6 +7,8 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import java.time.Instant
+import java.time.ZoneId
 
 object TimerNotificationManager {
     const val CHANNEL_RUNNING_TIMER = "sankalpam_running_timer"
@@ -35,7 +37,8 @@ object TimerNotificationManager {
 
     fun updateRunningNotification(ctx: Context, timers: List<TimerItem>) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
-        val runningTimer = timers.filter { it.isRunning }.minByOrNull { it.remainingSeconds }
+        val runningTimers = timers.filter { it.isRunning }
+        val runningTimer = runningTimers.minByOrNull { it.endTimestamp }
 
         if (runningTimer == null) {
             nm.cancel(RUNNING_NOTIFICATION_ID)
@@ -78,17 +81,38 @@ object TimerNotificationManager {
         )
 
         val title = runningTimer.label.ifBlank { "Timer" }
-        val remainingText = formatDurationSeconds(runningTimer.remainingSeconds)
+        val endTimeText = Instant.ofEpochMilli(runningTimer.endTimestamp)
+            .atZone(ZoneId.systemDefault())
+            .toLocalTime()
+            .pretty()
+        val contentText = if (runningTimers.size > 1) {
+            "Ends at $endTimeText • +${runningTimers.size - 1} more running"
+        } else {
+            "Ends at $endTimeText"
+        }
+//        val remainingText = formatDurationSeconds(runningTimer.remainingSeconds)
+
+//        val builder = Notification.Builder(ctx, CHANNEL_RUNNING_TIMER)
+//            .setSmallIcon(R.drawable.ic_launcher_foreground)
+//            .setContentTitle(title)
+//            .setContentText("Remaining: $remainingText")
+//            .setContentIntent(openAppPendingIntent)
+//            .setOngoing(true)
+//            .setOnlyAlertOnce(true)
+//            .setShowWhen(true)
+//            .setWhen(runningTimer.endTimestamp)
+//            .setUsesChronometer(true)
+//            .setCategory(Notification.CATEGORY_STOPWATCH)
 
         val builder = Notification.Builder(ctx, CHANNEL_RUNNING_TIMER)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
-            .setContentText("Remaining: $remainingText")
+            .setContentText(contentText)
             .setContentIntent(openAppPendingIntent)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setShowWhen(true)
-            .setWhen(runningTimer.endTimestamp)
+            .setWhen(runningTimer.endTimestamp + 999L)
             .setUsesChronometer(true)
             .setCategory(Notification.CATEGORY_STOPWATCH)
 
